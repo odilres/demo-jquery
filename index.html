@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form A</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1>Form A</h1>
+     <!-- memberikan ID myForm sehingga dapat merujuknya menggunakan jQuery -->
+    <form id="myForm">
+      <div class="mb-3">
+        <label for="numberInput" class="form-label">Number:</label>
+        <input type="number" class="form-control" id="numberInput" required>
+      </div>
+      <div class="mb-3">
+        <label for="textInput" class="form-label">Text:</label>
+        <input type="text" class="form-control" id="textInput" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <!-- Menampilkan tempat untuk menampilkan respons dari server dalam bentuk tabel. 
+    Awalnya, elemen ini disembunyikan menggunakan gaya display none agar tidak terlihat pada awalnya -->
+    <div id="outputTable" class="mt-5" style="display: none;">
+      <h2>Response:</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Memasukkan script jQuery menggunakan tag <script> yg memuat library jQuery dari URL yg diberikan -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  
+  <!-- Menggunakan $(document).ready() untuk memastikan bahwa kode akan dijalankan setelah dokumen HTML selesai dimuat 
+  lalu menambahkan proses penerusan submit untuk form dengan menggunakan $('#myForm').submit() -->
+  <script>
+    $(document).ready(function() {
+      $('#myForm').submit(function(e) {
+
+        // Menggunakan e.preventDefault() untuk mencegah perilaku default ketika form disubmit dari 
+        // pengiriman form dan memprosesnya secara asinkron menggunakan ajax
+        e.preventDefault();
+
+        // Mengambil nilai angka dan teks dari input  
+        var number = $('#numberInput').val();
+        var text = $('#textInput').val();
+        
+        // Menggunakan $.ajax() untuk mengirim permintaan POST ke proses.php
+        $.ajax({
+        // Menentukan URL tujuan, metode HTTP, data yg akan dikirimkan, dan tipe data yg diharapkan dalam respons
+          url: 'proses.php',
+          method: 'POST',
+          data: { number: number, text: text },
+          dataType: 'json',
+        // Jika permintaan berhasil, memanggil fungsi displayResponse(response) untuk menampilkan respons dari server
+          success: function(response) {
+            displayResponse(response);
+          }
+        });
+      });
+
+      function displayResponse(response) {
+        // Menggunakan jQuery untuk mengambil elemen <tbody> dari tabel dan mengosongkannya
+        var tableBody = $('#outputTable tbody');
+        tableBody.empty();
+        // Melakukan looping melalui respons yg diterima dan membuat baris tabel menggunakan <tr> dan <td>
+        // Setiap elemen dalam respons ditambahkan ke baris tersebut
+        for (var i = 0; i < response.length; i++) {
+          var index = i + 1;
+          var value = response[i];
+
+          var row = '<tr><td>' + index + '</td><td>' + value + '</td></tr>';
+          tableBody.append(row);
+        }
+        // Menggunakan $('#outputTable').show() untuk menampilkan elemen #outputTable yg sebelumnya di hide
+        $('#outputTable').show();
+        // menggunakan animasi $('html, body').animate() untuk menganimasikan scroll halaman ke 
+        // elemen tabel sehingga tabel tersebut terlihat dengan jelas
+        $('html, body').animate({ scrollTop: $('#outputTable').offset().top }, 500);
+      }
+    });
+  </script>
+</body>
+</html>
